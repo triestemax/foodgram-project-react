@@ -1,0 +1,135 @@
+from django.db import models
+from django.core.validators import MinValueValidator
+
+from foodgram.settings import LENGTH_NAME
+from users.models import User
+
+
+class Ingredients(models.Model):
+    """Модель данных об ингредиентах"""
+
+    name = models.CharField('Название ингредиента', max_length=200)
+    measurement_unit = models.CharField('Единица измерения', max_length=200)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self) -> str:
+        return self.name[:LENGTH_NAME]
+
+
+class Tag(models.Model):
+    """Модель данных тегов"""
+
+    name = models.CharField('Название тега', max_length=200,)
+    color = models.CharField(
+        'Цвет тега',
+        max_length=7,
+        null=True,
+    )
+    slug = models.SlugField(
+        'Слаг тега',
+        max_length=200,
+        unique=True,
+        null=True,
+    )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
+    def __str__(self) -> str:
+        return self.name[:LENGTH_NAME]
+
+
+class Recipes(models.Model):
+    """Модель рецептов"""
+
+    name = models.CharField('Название рецепта блюда', max_length=200,)
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор рецепта',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='recipes',
+    )
+    image = models.ImageField(
+        'Изображение блюда',
+        upload_to='recipes/',
+        null=True,
+        default=None
+        )
+    text = models.TextField('Описание приготовления блюда')
+    ingredients = models.ManyToManyField(
+        Ingredients,
+        through='IngredientsInRecipe',
+        verbose_name='Используемые ингредиенты в рецепте',
+        related_name='recipes',
+    )
+    tags = models.ManyToManyField(
+        Tag,
+        through='TagsInRecipe',
+        verbose_name='Используемые теги в рецепте',
+        related_name='recipes',
+    )
+    cooking_time = models.IntegerField(
+        'Время приготовления блюда в минутах',
+        validators=(MinValueValidator(1),),
+    )
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class IngredientsInRecipe(models.Model):
+    """Модель для связи ингредиентов с рецептами"""
+
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        verbose_name='Название рецепта',
+        help_text='Необходимо название рецепта',
+    )
+
+    ingredient = models.ForeignKey(
+        Ingredients,
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиенты рецепта блюда',
+        help_text='Необходим ингредиент',
+    )
+    amount = models.IntegerField(
+        'Количество ингредиента, требуемого для приготовления',
+        validators=(MinValueValidator(1),),
+    )
+
+    def __str__(self):
+        return f'Для {self.recipe} требуется {self.amount} {self.ingredient}'
+
+
+class TagsInRecipe(models.Model):
+    """Модель для связи тегов с рецептами"""
+
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        verbose_name='Название рецепта',
+        help_text='Необходимо название рецепта',
+    )
+
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        verbose_name='теги для рецепта блюда',
+        help_text='Необходим тег',
+    )
+
+    def __str__(self):
+        return f'{self.recipe} {self.tag}'
