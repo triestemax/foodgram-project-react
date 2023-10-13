@@ -37,11 +37,10 @@ class UserCreateSerializer(UserCreateSerializer):
                   'password')
 
     def validate(self, data):
-        """Проверяет наличие пользоваталей с введенным email и именем
-        и корректность заполнения имени пользователя."""
         if User.objects.filter(email=data.get('email')):
             raise serializers.ValidationError(
-                'Пользователь с таким адресом электронной почты уже существует!'
+                f'Пользователь {data.get("username")} с таким адресом '
+                f'электронной почты уже существует!'
             )
         elif User.objects.filter(username=data.get('username')):
             raise serializers.ValidationError(
@@ -57,8 +56,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta(UserSerializer.Meta):
         fields = UserSerializer.Meta.fields + (
-            'recipes_count',
             'recipes',
+            'recipes_count',
         )
         read_only_fields = ('email', 'username')
 
@@ -67,12 +66,12 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if Subscribe.objects.filter(author=author, user=user).exists():
             raise serializers.ValidationError(
-                detail='Вы уже подписаны на этого автора!',
+                {'detail': 'Вы уже подписаны на этого автора!'},
                 code=status.HTTP_400_BAD_REQUEST
             )
         if user == author:
             raise serializers.ValidationError(
-                detail='Вы не можете подписаться на самого себя!',
+                {'detail': 'Вы не можете подписаться на самого себя!'},
                 code=status.HTTP_400_BAD_REQUEST
             )
         return data

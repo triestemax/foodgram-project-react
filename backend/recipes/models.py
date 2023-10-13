@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
+
 from foodgram.settings import LENGTH_NAME
 from users.models import User
 
@@ -86,7 +87,7 @@ class Recipes(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self) -> str:
-        return self.name
+        return self.name[:LENGTH_NAME]
 
 
 class IngredientsInRecipe(models.Model):
@@ -111,7 +112,7 @@ class IngredientsInRecipe(models.Model):
     )
 
     def __str__(self):
-        return f'Для {self.recipe} требуется {self.amount} {self.ingredient}'
+        return f'Для {self.recipe} требуется {self.amount} {self.ingredient}.'
 
 
 class TagsInRecipe(models.Model):
@@ -127,9 +128,70 @@ class TagsInRecipe(models.Model):
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
-        verbose_name='теги для рецепта блюда',
+        verbose_name='Теги для рецепта',
         help_text='Необходим тег',
     )
 
     def __str__(self):
-        return f'{self.recipe} {self.tag}'
+        return f'{self.recipe} {self.tag}.'
+
+
+class Favourite(models.Model):
+    """Модель для добавления рецепта в избранное"""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favourite',
+        verbose_name='Зарегистрированный пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='favourite',
+        verbose_name='Избранный рецепт'
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favourite',
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user.username} добавил в избранное: {self.recipe.name}.'
+
+
+class Shopping_cart(models.Model):
+    """Модель для добавления ингредиентов рецепта в корзину"""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        verbose_name='Зарегистрированный пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        verbose_name='Ингредиенты рецепта для списка покупок'
+    )
+
+    class Meta:
+        verbose_name = 'Корзина покупок'
+        verbose_name_plural = 'Корзина покупок'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shopping_cart',
+            )
+        ]
+
+    def __str__(self):
+        return (f'{self.user.username} добавил рецепт '
+                f'{self.recipe.name} для списка покупок.')
