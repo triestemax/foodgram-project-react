@@ -1,11 +1,7 @@
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import status
+from rest_framework import permissions, status
 from rest_framework.decorators import action
-from rest_framework.permissions import (
-    IsAuthenticated,
-    IsAuthenticatedOrReadOnly
-)
 from rest_framework.response import Response
 
 
@@ -14,13 +10,13 @@ from .serializers import SubscriptionSerializer
 
 
 class CustomUserViewSet(UserViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     @action(
         detail=False,
         methods=('get',),
         serializer_class=SubscriptionSerializer,
-        permission_classes=(IsAuthenticated, )
+        permission_classes=(permissions.IsAuthenticated, )
     )
     def subscriptions(self, request):
         user = request.user

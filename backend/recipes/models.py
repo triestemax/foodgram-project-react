@@ -1,5 +1,5 @@
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from django.core.validators import MinValueValidator
 
 
 from foodgram.settings import LENGTH_NAME
@@ -29,6 +29,12 @@ class Tag(models.Model):
         'Цвет тега',
         max_length=7,
         null=True,
+        validators=[
+            RegexValidator(
+                '^#([a-fA-F0-9]{6})',
+                message='Поле должно содержать HEX-код выбранного цвета.'
+            )
+        ]
     )
     slug = models.SlugField(
         'Слаг тега',

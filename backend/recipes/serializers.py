@@ -1,8 +1,7 @@
-from rest_framework import serializers, status
-from drf_extra_fields.fields import Base64ImageField
-from django.shortcuts import get_object_or_404
 from django.db import transaction
-
+from django.shortcuts import get_object_or_404
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers, status
 
 from recipes.models import (
     Ingredients,
@@ -16,6 +15,7 @@ from users.serializers import UserSerializer
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
+    """Сериалайзер для ингредиентов."""
 
     class Meta:
         model = Ingredients
@@ -23,6 +23,7 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
 
 class TagsSerializer(serializers.ModelSerializer):
+    """Сериалайзер для тегов."""
 
     class Meta:
         model = Tag
@@ -30,6 +31,7 @@ class TagsSerializer(serializers.ModelSerializer):
 
 
 class IngredientsInRecipeReadSerializer(serializers.ModelSerializer):
+    """Сериалайзер для ингредиентов в рецепте."""
     id = serializers.ReadOnlyField(source='ingredients.id')
     name = serializers.ReadOnlyField(source='ingredients.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -44,6 +46,7 @@ class IngredientsInRecipeReadSerializer(serializers.ModelSerializer):
 
 
 class RecipesReadSerializer(serializers.ModelSerializer):
+    """Сериалайзер для чтения рецептов."""
     author = UserSerializer(read_only=True)
     tags = TagsSerializer(read_only=True, many=True,)
     ingredients = IngredientsInRecipeReadSerializer(
@@ -96,7 +99,7 @@ class IngredientsInRecipeCreateSerializer(serializers.ModelSerializer):
 
 
 class RecipesCreateSerializer(serializers.ModelSerializer):
-
+    """Сериалайзер для создания или обновления рецептов."""
     ingredients = IngredientsInRecipeCreateSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -203,7 +206,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
 
 
 class RecipesSerializer(serializers.ModelSerializer):
-    """Список рецептов без ингридиентов."""
+    """Сериалайзер для рецептов без ингредиентов."""
     image = Base64ImageField(read_only=True)
     name = serializers.ReadOnlyField()
     cooking_time = serializers.ReadOnlyField()
