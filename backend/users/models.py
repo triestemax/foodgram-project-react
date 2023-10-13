@@ -66,7 +66,7 @@ class Subscribe(models.Model):
         return (
             f'{self.user.username[:LENGTH_NAME]} - '
             f'{self.author.username[:LENGTH_NAME]}'
-            )
+        )
 
     class Meta:
         verbose_name = 'Подписка на авторов'

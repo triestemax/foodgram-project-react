@@ -4,7 +4,7 @@ from recipes.models import (
     Ingredients, Tag,
     Recipes, IngredientsInRecipe,
     TagsInRecipe, Favourite, Shopping_cart
-    )
+)
 
 
 @admin.register(Ingredients)

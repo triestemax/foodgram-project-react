@@ -151,7 +151,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 detail='Должен быть хотя бы один тег!',
                 code=status.HTTP_400_BAD_REQUEST
-                )
+            )
         tags_unique_list = []
         for tag in tags:
             if tag in tags_unique_list:
@@ -179,7 +179,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
         recipe = Recipes.objects.create(
             author=self.context['request'].user,
             **validated_data
-            )
+        )
         recipe.tags.set(tags)
         self.create_ingredients_amounts(recipe=recipe, ingredients=ingredients)
         return recipe
