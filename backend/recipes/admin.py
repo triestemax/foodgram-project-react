@@ -1,9 +1,13 @@
 from django.contrib import admin
 
 from recipes.models import (
-    Ingredients, Tag,
-    Recipes, IngredientsInRecipe,
-    TagsInRecipe, Favourite, Shopping_cart
+    Favourite,
+    Ingredients,
+    IngredientsInRecipe,
+    Shopping_cart,
+    Tag,
+    TagsInRecipe,
+    Recipes,
 )
 
 
@@ -37,7 +41,7 @@ class IngredientsInRecipeAdmin(admin.ModelAdmin):
 
 
 @admin.register(TagsInRecipe)
-class agsInRecipeAdmin(admin.ModelAdmin):
+class TagsInRecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'recipe', 'tag')
     list_editable = ('recipe', 'tag')
 

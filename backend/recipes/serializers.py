@@ -137,26 +137,26 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             amount = ingredientinrecipe['amount']
             if int(amount) <= 0:
                 raise serializers.ValidationError(
-                    detail=(f'Количество {ingredient} должно быть больше 0!'),
+                    {'detail': 'Количество должно быть больше 0!'},
                     code=status.HTTP_400_BAD_REQUEST
                 )
             elif ingredient in ingredients_unique_list:
                 raise serializers.ValidationError(
-                    detail='Ингредиенты не должны повторяться!',
+                    {'detail': 'Ингредиенты не должны повторяться!'},
                     code=status.HTTP_400_BAD_REQUEST
                 )
             else:
                 ingredients_unique_list.append(ingredient)
         if not tags:
             raise serializers.ValidationError(
-                detail='Должен быть хотя бы один тег!',
+                {'detail': 'Должен быть хотя бы один тег!'},
                 code=status.HTTP_400_BAD_REQUEST
             )
         tags_unique_list = []
         for tag in tags:
             if tag in tags_unique_list:
                 raise serializers.ValidationError(
-                    detail='Теги не должны повторяться!',
+                    {'detail': 'Теги не должны повторяться!'},
                     code=status.HTTP_400_BAD_REQUEST
                 )
             tags_unique_list.append(tag)

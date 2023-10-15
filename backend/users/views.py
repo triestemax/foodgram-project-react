@@ -4,7 +4,7 @@ from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-
+from recipes.pagination import CustomPaginator
 from .models import Subscribe, User
 from .serializers import SubscriptionSerializer
 
@@ -16,14 +16,15 @@ class CustomUserViewSet(UserViewSet):
         detail=False,
         methods=('get',),
         serializer_class=SubscriptionSerializer,
-        permission_classes=(permissions.IsAuthenticated, )
+        permission_classes=(permissions.IsAuthenticated, ),
+        pagination_class=CustomPaginator
     )
     def subscriptions(self, request):
         user = request.user
         queryset = User.objects.filter(subscribing__user=user)
-        pages = self.paginate_queryset(queryset)
+        page = self.paginate_queryset(queryset)
         serializer = SubscriptionSerializer(
-            pages,
+            page,
             many=True,
             context={'request': request}
         )

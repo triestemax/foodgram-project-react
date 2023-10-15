@@ -24,8 +24,8 @@ services:
     env_file:
         - ./.env
     volumes:
-      - static_value:/backend_static/
-      - media_value:/media/
+      - static_value:/app/static/
+      - media_value:/app/media/
 
   frontend:
     image: trieste/foodgram_frontend

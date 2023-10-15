@@ -4,7 +4,6 @@ from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from recipes.models import (
@@ -23,6 +22,7 @@ from .serializers import (
     RecipesReadSerializer,
     RecipesCreateSerializer
 )
+from .pagination import CustomPaginator
 from .permissions import (
     IsAuthorOrAdminOrReadOnly,
     IsAdminOrReadOnly,
@@ -32,24 +32,22 @@ from .permissions import (
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    pagination_class = PageNumberPagination
+    permission_classes = (IsAdminOrReadOnly, )
+    pagination_class = None
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('^name', )
 
 
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagsSerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    pagination_class = PageNumberPagination
+    permission_classes = (IsAdminOrReadOnly, )
+    pagination_class = None
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPaginator
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ('name',)
