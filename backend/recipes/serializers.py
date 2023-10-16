@@ -32,17 +32,15 @@ class TagsSerializer(serializers.ModelSerializer):
 
 class IngredientsInRecipeReadSerializer(serializers.ModelSerializer):
     """Сериалайзер для ингредиентов в рецепте."""
-    id = serializers.ReadOnlyField(source='ingredients.id')
-    name = serializers.ReadOnlyField(source='ingredients.name')
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
-        source='ingredients.measurement_unit'
+        source='ingredient.measurement_unit'
     )
-    amount = serializers.ReadOnlyField(source='amount')
 
     class Meta:
         model = IngredientsInRecipe
-        fields = ('id', 'name',
-                  'measurement_unit', 'amount')
+        fields = ('id', 'name', 'measurement_unit', 'amount',)
 
 
 class RecipesReadSerializer(serializers.ModelSerializer):
@@ -50,9 +48,9 @@ class RecipesReadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     tags = TagsSerializer(read_only=True, many=True,)
     ingredients = IngredientsInRecipeReadSerializer(
-        source='recipes',
         many=True,
-        read_only=True,
+        source='ingredientsinrecipe_set',
+        read_only=True
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -186,9 +184,8 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        instance = super().update(instance, validated_data)
+        tags = validated_data.pop('tags')
         instance.tags.clear()
         instance.tags.set(tags)
         instance.ingredients.clear()
@@ -196,8 +193,8 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             recipe=instance,
             ingredients=ingredients
         )
-        instance.save()
-        return instance
+
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         request = self.context.get('request')
