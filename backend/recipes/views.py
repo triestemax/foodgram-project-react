@@ -15,7 +15,6 @@ from recipes.models import (
     Tag
 )
 from .filters import RecipesFilter
-from .mixins import ListRetrieveViewSet
 from .serializers import (
     IngredientsSerializer,
     TagsSerializer,
@@ -29,7 +28,7 @@ from .permissions import (
 )
 
 
-class IngredientsViewSet(ListRetrieveViewSet):
+class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     pagination_class = None
@@ -37,7 +36,7 @@ class IngredientsViewSet(ListRetrieveViewSet):
     search_fields = ('^name', )
 
 
-class TagsViewSet(ListRetrieveViewSet):
+class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagsSerializer
     pagination_class = None
