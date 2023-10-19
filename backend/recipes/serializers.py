@@ -152,7 +152,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
                     code=status.HTTP_400_BAD_REQUEST
                 )
             else:
-                ingredients_unique_list.append(ingredient)                
+                ingredients_unique_list.append(ingredient)
         if not tags:
             raise serializers.ValidationError(
                 {'detail': 'Должен быть хотя бы один тег!'},

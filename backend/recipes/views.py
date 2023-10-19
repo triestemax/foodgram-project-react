@@ -94,9 +94,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 )
         except Exception:
             raise exceptions.ValidationError(
-                    {'detail': 'Невозможно выполнить!'},
-                    code=status.HTTP_400_BAD_REQUEST
-                )
+                {'detail': 'Невозможно выполнить!'},
+                code=status.HTTP_400_BAD_REQUEST
+            )
 
     @action(
         detail=True,
@@ -139,9 +139,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 )
         except Exception:
             raise exceptions.ValidationError(
-                    {'detail': 'Невозможно выполнить!'},
-                    code=status.HTTP_400_BAD_REQUEST
-                )
+                {'detail': 'Невозможно выполнить!'},
+                code=status.HTTP_400_BAD_REQUEST
+            )
 
     @action(
         detail=False,
