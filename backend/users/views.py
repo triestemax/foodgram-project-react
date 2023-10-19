@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import permissions, status
+from rest_framework import exceptions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -11,14 +11,12 @@ from .serializers import SubscriptionSerializer
 
 
 class CustomUserViewSet(UserViewSet):
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    pagination_class = CustomPaginator
 
     @action(
         detail=False,
         methods=('get',),
         serializer_class=SubscriptionSerializer,
-        permission_classes=(permissions.IsAuthenticated, ),
-        pagination_class=CustomPaginator
     )
     def subscriptions(self, request):
         user = request.user
@@ -33,24 +31,47 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=('post', 'delete'),
-        serializer_class=SubscriptionSerializer
+        methods=('post', 'delete',),
     )
     def subscribe(self, request, **kwargs):
         user = request.user
-        author_id = self.kwargs.get('id')
-        author = get_object_or_404(User, id=author_id)
         if request.method == 'POST':
-            Subscribe.objects.create(user=user, author=author)
-            return Response(status=status.HTTP_201_CREATED)
-
-        if request.method == 'DELETE':
-            subscription = get_object_or_404(
-                Subscribe,
+            author_id = self.kwargs.get('id')
+            author = get_object_or_404(User, id=author_id)
+            if user == author:
+                raise exceptions.ValidationError(
+                    {'detail': 'Подписаться на самого себя нельзя!'},
+                    code=status.HTTP_400_BAD_REQUEST
+                )
+            elif Subscribe.objects.filter(
                 user=user,
                 author=author
+            ).exists():
+                raise exceptions.ValidationError(
+                    {'detail': 'Вы уже подписаны на этого автора!'},
+                    code=status.HTTP_400_BAD_REQUEST
+                )
+            Subscribe.objects.create(user=user, author=author)
+            serializer = SubscriptionSerializer(
+                author,
+                context={"request": request}
             )
 
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if request.method == 'DELETE':
+            try:
+                author_id = self.kwargs.get('id')
+                author = get_object_or_404(User, id=author_id)
+                subscription = get_object_or_404(
+                    Subscribe,
+                    user=user,
+                    author=author
+                )
+            except Exception:
+                raise exceptions.ValidationError(
+                    {'detail': 'Невозможно выполнить!'},
+                    code=status.HTTP_400_BAD_REQUEST
+                )
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)

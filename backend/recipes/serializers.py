@@ -98,7 +98,9 @@ class IngredientsInRecipeCreateSerializer(serializers.ModelSerializer):
 
 class RecipesCreateSerializer(serializers.ModelSerializer):
     """Сериалайзер для создания или обновления рецептов."""
-    ingredients = IngredientsInRecipeCreateSerializer(many=True)
+    ingredients = IngredientsInRecipeCreateSerializer(
+        many=True,
+    )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
@@ -128,10 +130,16 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             )
         ingredients_unique_list = []
         for ingredientinrecipe in ingredients:
-            ingredient = get_object_or_404(
-                Ingredients,
-                id=ingredientinrecipe['id']
-            )
+            try:
+                ingredient = get_object_or_404(
+                    Ingredients,
+                    id=ingredientinrecipe['id']
+                )
+            except Exception:
+                raise serializers.ValidationError(
+                    {'detail': 'Нет такого ингредиента!'},
+                    code=status.HTTP_400_BAD_REQUEST
+                )
             amount = ingredientinrecipe['amount']
             if int(amount) <= 0:
                 raise serializers.ValidationError(
@@ -144,7 +152,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
                     code=status.HTTP_400_BAD_REQUEST
                 )
             else:
-                ingredients_unique_list.append(ingredient)
+                ingredients_unique_list.append(ingredient)                
         if not tags:
             raise serializers.ValidationError(
                 {'detail': 'Должен быть хотя бы один тег!'},

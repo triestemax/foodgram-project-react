@@ -36,17 +36,26 @@ class UserCreateSerializer(UserCreateSerializer):
         fields = ('id', 'username', 'first_name', 'last_name', 'email',
                   'password')
 
-    def validate(self, data):
-        if User.objects.filter(email=data.get('email')):
+    def validate_username(self, usernamecreate):
+        if usernamecreate == 'me':
             raise serializers.ValidationError(
-                f'Пользователь {data.get("username")} с таким адресом '
-                f'электронной почты уже существует!'
+                {'detail': 'Нельзя использовать me!'},
+                code=status.HTTP_400_BAD_REQUEST
             )
-        elif User.objects.filter(username=data.get('username')):
+        elif User.objects.filter(username=usernamecreate):
             raise serializers.ValidationError(
-                'Пользователь с такой учетной записью уже существует!'
+                {'detail': 'Пользователь с таким никнеймом уже существует!'},
+                code=status.HTTP_400_BAD_REQUEST,
             )
-        return data
+        return usernamecreate
+
+    def validate_email(self, emailcreate):
+        if User.objects.filter(email=emailcreate):
+            raise serializers.ValidationError(
+                {'detail': 'Пользователь c таким адресом уже существует!'},
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        return emailcreate
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -60,21 +69,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes_count',
         )
         read_only_fields = ('email', 'username')
-
-    def validate(self, data):
-        author = self.instance
-        user = self.context.get('request').user
-        if Subscribe.objects.filter(author=author, user=user).exists():
-            raise serializers.ValidationError(
-                {'detail': 'Вы уже подписаны на этого автора!'},
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        if user == author:
-            raise serializers.ValidationError(
-                {'detail': 'Вы не можете подписаться на самого себя!'},
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        return data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
