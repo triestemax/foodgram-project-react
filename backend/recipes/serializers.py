@@ -120,15 +120,17 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             'author'
         )
 
-    def validate(self, data):
-        ingredients = data.get('ingredients')
-        tags = data.get('tags')
+    def validate_email(self, data):
         image = data.get('image')
         if (image is None) or (image == ''):
             raise serializers.ValidationError(
                 {'detail': 'Для рецепта необходимо добавить изображение!'},
                 code=status.HTTP_400_BAD_REQUEST
             )
+        return data
+
+    def validate_ingredients(self, data):
+        ingredients = data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError(
                 {'detail': 'Для рецепта необходимо добавить ингредиенты!'},
@@ -159,6 +161,10 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
                 )
             else:
                 ingredients_unique_list.append(ingredient)
+        return data
+
+    def validate_tags(self, data):
+        tags = data.get('tags')
         if not tags:
             raise serializers.ValidationError(
                 {'detail': 'Должен быть хотя бы один тег!'},
