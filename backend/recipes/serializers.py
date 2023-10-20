@@ -123,9 +123,15 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         ingredients = data.get('ingredients')
         tags = data.get('tags')
+        image = data.get('image')
+        if (image is None) or (image == ''):
+            raise serializers.ValidationError(
+                {'detail': 'Для рецепта необходимо добавить изображение!'},
+                code=status.HTTP_400_BAD_REQUEST
+            )
         if not ingredients:
             raise serializers.ValidationError(
-                detail='Для рецепта необходимо добавить ингредиенты!',
+                {'detail': 'Для рецепта необходимо добавить ингредиенты!'},
                 code=status.HTTP_400_BAD_REQUEST
             )
         ingredients_unique_list = []
