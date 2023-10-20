@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 
 from recipes.models import (
@@ -23,11 +24,22 @@ class TagAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+class RecipeIngredientsInLine(admin.TabularInline):
+    model = Recipes.ingredients.through
+    extra = 1
+
+
+class RecipeTagsInLine(admin.TabularInline):
+    model = Recipes.tags.through
+    extra = 1
+
+
 @admin.register(Recipes)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'author', 'in_favourites')
     readonly_fields = ('in_favourites',)
     list_filter = ('name', 'author',)
+    inlines = (RecipeIngredientsInLine, RecipeTagsInLine)
 
     @admin.display(description='Количество рецептов в избранном')
     def in_favourites(self, obj):

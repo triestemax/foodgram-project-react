@@ -55,20 +55,23 @@ class Tag(models.Model):
 class Recipes(models.Model):
     """Модель рецептов"""
 
-    name = models.CharField('Название рецепта блюда', max_length=200,)
+    name = models.CharField(
+        'Название рецепта блюда',
+        max_length=200,
+    )
     author = models.ForeignKey(
         User,
         verbose_name='Автор рецепта',
-        on_delete=models.SET_NULL,
-        null=True,
+        on_delete=models.CASCADE,
         related_name='recipes',
     )
     image = models.ImageField(
         'Изображение блюда',
         upload_to='recipes/',
-        default=None,
     )
-    text = models.TextField('Описание приготовления блюда')
+    text = models.TextField(
+        'Описание приготовления блюда',
+    )
     ingredients = models.ManyToManyField(
         Ingredients,
         through='IngredientsInRecipe',
