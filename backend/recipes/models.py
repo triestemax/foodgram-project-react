@@ -119,6 +119,16 @@ class IngredientsInRecipe(models.Model):
         validators=(MinValueValidator(1),),
     )
 
+    class Meta:
+        verbose_name = 'Ингредиенты для рецептов'
+        verbose_name_plural = 'Ингредиенты для рецептов'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique_ingredientsinrecipes',
+            )
+        ]
+
     def __str__(self):
         return f'Для {self.recipe} требуется {self.amount} {self.ingredient}.'
 
@@ -139,6 +149,16 @@ class TagsInRecipe(models.Model):
         verbose_name='Теги для рецепта',
         help_text='Необходим тег',
     )
+
+    class Meta:
+        verbose_name = 'Тэги для рецептов'
+        verbose_name_plural = 'Тэги для рецептов'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'tag'],
+                name='unique_tagsinrecipes',
+            )
+        ]
 
     def __str__(self):
         return f'{self.recipe} {self.tag}.'

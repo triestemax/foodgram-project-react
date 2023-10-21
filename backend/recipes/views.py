@@ -1,6 +1,6 @@
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import exceptions, filters, permissions, status, viewsets
 from rest_framework.decorators import action
@@ -66,7 +66,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
             if request.method == 'POST':
                 serializer = RecipesSerializer(
                     recipe, data=request.data,
-                    context={"request": request}
+                    context={'request': request}
                 )
                 serializer.is_valid(raise_exception=True)
                 if not Favourite.objects.filter(
@@ -110,7 +110,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
             if request.method == 'POST':
                 serializer = RecipesSerializer(
                     recipe, data=request.data,
-                    context={"request": request}
+                    context={'request': request}
                 )
                 serializer.is_valid(raise_exception=True)
                 if not Shopping_cart.objects.filter(
